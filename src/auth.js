@@ -22,40 +22,12 @@ const queryHashByUsername = (username, data) => {
 
 const actRegister = (req, res) => {
 	console.log('Payload received', req.body)
-	const username = req.body.username
-	const password = req.body.password
-	const dataItem = queryHashByUsername(username, data)
-	if (dataItem) {
-		res.status(400).send({result: 'The username is already registered.'})
-		return
-	} else {
-		const mySalt = createRandomSalt()
-		const myHash = createHash(password, mySalt)
-		data.push({username: username, salt: mySalt, hash: myHash})
-		res.status(200).send({result: 'success', username: username})
-	}
+	res.status(200).send({result: 'success', username: req.body.username})
 }
 
 const actLogin = (req, res) => {
 	console.log('Payload received', req.body)
-	const username = req.body.username
-	const password = req.body.password
-	const dataItem = queryHashByUsername(username, data)
-	if (!dataItem) {
-		res.status(401).send({result: 'Wrong username.'})
-		return
-	} else {
-		const salt = dataItem.salt
-		const hash = dataItem.hash
-		if (createHash(password, salt) != hash) {
-			res.status(401).send({result: 'Wrong password.'})
-		} else {
-			res.cookie(cookieKey, createHash(password, salt), 
-				{maxAge: 3600 * 1000, httpOnly: true})
-			res.status(200).send({username: username, result: 'success'})
-			return
-		}
-	}
+	res.status(200).send({username: req.body.username, result: 'success'})
 }
 
 const actLogout = (req, res) => {

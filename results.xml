@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Mocha Tests" time="0.063" tests="7" failures="0">
+  <testsuite name="Root Suite" timestamp="2017-04-04T05:06:41" tests="0" failures="0" time="0">
+  </testsuite>
+  <testsuite name="Validate Article functionality" timestamp="2017-04-04T05:06:41" tests="4" file="/Users/pai/Documents/comp531/hw6_backend/src/articles.spec.js" failures="0" time="0.048">
+    <testcase name="Validate Article functionality should give me three or more articles" time="0.029" classname="should give me three or more articles">
+    </testcase>
+    <testcase name="Validate Article functionality should add two articles with successive article ids, and return the article each time" time="0.008" classname="should add two articles with successive article ids, and return the article each time">
+    </testcase>
+    <testcase name="Validate Article functionality should return an article with a specified id" time="0.006" classname="should return an article with a specified id">
+    </testcase>
+    <testcase name="Validate Article functionality should return nothing for an invalid id" time="0.005" classname="should return nothing for an invalid id">
+    </testcase>
+  </testsuite>
+  <testsuite name="Validate profile functionality" timestamp="2017-04-04T05:06:41" tests="3" file="/Users/pai/Documents/comp531/hw6_backend/src/profile.spec.js" failures="0" time="0.015">
+    <testcase name="Validate profile functionality should get headlines" time="0.003" classname="should get headlines">
+    </testcase>
+    <testcase name="Validate profile functionality should always return a value for /headlines/sampleUser" time="0.004" classname="should always return a value for /headlines/sampleUser">
+    </testcase>
+    <testcase name="Validate profile functionality should updates value in memory for default user, so a GET call returns new value" time="0.008" classname="should updates value in memory for default user, so a GET call returns new value">
+    </testcase>
+  </testsuite>
+</testsuites>

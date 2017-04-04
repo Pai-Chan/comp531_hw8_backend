@@ -56,7 +56,15 @@ const getArticles = (req, res) => {
 	}
 }
 
+const putArticle = (req, res) => {
+	const result = {}
+	result.articles = articles.articles.filter(article => (article._id == 0))
+
+	res.send(result)
+}
+
 module.exports = (app) => {
 	app.post('/article', addArticle)
 	app.get('/articles/:id*?', getArticles)
+	app.put('/articles/:id*', putArticle)
 }

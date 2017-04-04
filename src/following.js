@@ -1,7 +1,7 @@
 const getFollowing = (req, res) => {
 	if (req.params.user) {
 		res.send({
-			username: 'currentUser',
+			username: req.params.user,
 			following: [
 				'sep1',
 				'sep2',
@@ -10,7 +10,7 @@ const getFollowing = (req, res) => {
 		})
 	} else {
 		res.send({
-			username: 'currentUser',
+			username: req.params.user,
 			following: [
 				'sep1',
 				'sep2',

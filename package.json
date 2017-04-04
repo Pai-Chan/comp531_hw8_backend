@@ -17,7 +17,8 @@
   "scripts": {
     "start": "node --use_strict index.js",
     "watch": "nodemon index.js",
-    "test": "mocha --opts mocha.opts src/**/*.spec.js",
+    "test": "npm run mocha",
+    "test:junit": "mocha --opts mocha.opts src/**/*.spec.js --reporter mocha-junit-reporter --reporter-options mochaFile=./results.xml",
     "test:watch": "npm run test -- -w"
   },
   "devDependencies": {
@@ -25,6 +26,7 @@
     "es6-promise": "^4.0.5",
     "isomorphic-fetch": "^2.2.1",
     "mocha": "^3.1.2",
+    "mocha-junit-reporter": "^1.13.0",
     "nodemon": "^1.11.0"
   }
 }

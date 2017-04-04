@@ -59,22 +59,25 @@ const getEmail = (req, res) => {
 		})
 	} else {
 		res.send({
-			username: "aNameMaybeNotMe",
+			username: myProfile.username,
 			email: myProfile.email
 		})		
 	}
 }
 
 const putEmail = (req, res) => {
+	if (req.body.email) {
+		myProfile.email = req.body.email
+	}
 	res.send({
-		username: "aName",
+		username: myProfile.username,
 		email: req.body.email || "Not Provided"
 	})
 }
 
 const getDob = (req, res) => {
 	res.send({
-		username: "CurrentLoginedUsername",
+		username: myProfile.username,
 		dob: 794668136679.8558
 	})
 }
@@ -87,15 +90,18 @@ const getZipcode = (req, res) => {
 		})
 	} else {
 		res.send({
-			username: "aNameMaybeNotMe",
+			username: myProfile.username,
 			zipcode: myProfile.zipcode
 		})		
 	}
 }
 
 const putZipcode = (req, res) => {
+	if (req.body.zipcode) {
+		myProfile.zipcode = req.body.zipcode
+	}	
 	res.send({
-		username: "aName",
+		username: myProfile.username,
 		zipcode: req.body.zipcode || "Not Provided"
 	})
 }
@@ -111,7 +117,7 @@ const getAvatars = (req, res) => {
 	} else {
 		res.send({
 			avatars: [{
-				username: "aNameMaybeNotMe",
+				username: myProfile.username,
 				avatar: myProfile.avatar
 			}]
 		})		
@@ -119,8 +125,11 @@ const getAvatars = (req, res) => {
 }
 
 const putAvatar = (req, res) => {
+	if (req.body.avatar) {
+		myProfile.avatar = req.body.avatar
+	}
 	res.send({
-			username: "aName",
+			username: myProfile.username,
 			avatar: req.body.avatar || "Not Provided"
 		}
 	)
