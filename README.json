@@ -1,4 +1,5 @@
 {
-	"netid": "pc30",
-	"backend": "https://boiling-castle-61278.herokuapp.com"
+  "netid": "pc30",
+  "frontend": "http://ricebookpchw6.surge.sh",
+  "backend": "https://boiling-castle-61278.herokuapp.com"
 }
