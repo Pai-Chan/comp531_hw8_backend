@@ -1,66 +1,156 @@
-const articles = {
-	articles: [
-		{
-			_id: 0,
-			author: 'Scott',
-			text:'Hello Rice!',
-			date: new Date(),
-			comments: []
-		},
-		{
-			_id:1, 
-			author: 'Scott',
-			text:'Hello Houston!',
-			date: new Date(),
-			comments: []
-		},
-		{
-			_id:2, 
-			author: 'Scott',
-			text:'Hello Texas!',
-			date: new Date(),
-			comments: []
-		},
-		{
-			_id:3, 
-			author: 'Scott',
-			text:'Hello America!',
-			date: new Date(),
-			comments: []
-		}
-	]
-}
+var Article = require('./model.js').Article
 
 const addArticle = (req, res) => {
-	console.log("Receive addArticle request.")
-	const newArticle = {}
-	newArticle._id = articles['articles'].length
-	newArticle.author = 'Scott'
-	newArticle.text = req.body.text
-	newArticle.date = new Date()
-	newArticle.comments = []
-	articles['articles'].push(newArticle)
-	const resBody = {}
-	resBody.articles = [newArticle]
-	res.send(resBody)
+	console.log("Now user go to addArticle")
+	console.log("--------------------------------------")
+	console.log("The req body is")
+	console.log(req.body)
+	if (!req.body.text) {
+		console.log("Empty text")
+		res.status(401).send("Empty text")
+		return
+	}
+	console.log("req.username is")
+	console.log(req.username)
+	var username = req.username
+	if (!username) {
+		username = 'testUser'
+		console.log("Now set username to testUser")
+	}
+	const articleToSave = {
+		author: username,
+		img: null,
+		date: new Date().getTime(),
+		text: req.body.text,
+		comments:[]
+	}
+	console.log("The article that will be saved in next step is:")
+	console.log(articleToSave)
+	new Article(articleToSave)
+	.save((err, doc) => {
+		if (err || !doc) {
+			console.log(err)
+			res.status(400).send({error: err})
+			return
+		} else {
+			res.status(200).send({"articles": [doc]})
+			return
+		}
+	})
 }
 
 const getArticles = (req, res) => {
+	console.log("Now user try to get articles")
+	console.log("id of the one article if it is one")
+	console.log(req.params.id)
 	const id = req.params.id
 	if (!id) {
-		res.send(articles)
+		// not providing id, return all articles in the database, will change in final assign
+		Article.find({}, (err, items) => {
+			if (err) {
+				res.status(400).send({error: err})
+				return
+			} else {
+				if (items) {
+					res.status(200).send({articles: items})
+					return
+				} else {
+					console.log("Now the database has no article.")
+					res.status(200).send({articles: items})
+					return					
+				}
+			}
+		})
 	} else {
-		const result = {}
-		result.articles = articles.articles.filter(article => (article._id == id))
-		res.send(result)
+		if (id) {
+			Article.findById(id, (err, item) => {
+				if (err) {
+					res.status(400).send({error: err})
+				} else {
+					if (item) {
+						res.status(200).send({articles: [item]})
+					} else {
+						res.status(404).send({result: 'No article with that id in the database.'})
+					}
+				}
+			})
+		}
 	}
 }
 
+// the api suggests that if commentId == 0, meaning to put article itself, 
+//if it is postive, put comment.
+//if it is -1, add a comment
 const putArticle = (req, res) => {
-	const result = {}
-	result.articles = articles.articles.filter(article => (article._id == 0))
+	console.log("req body is:")
+	console.log(req.body)
+	const id = req.params.id
+	if (!id) {
+		res.status(400).send("id cannot be empty")
+		return
+	}
+	if (!req.body.text) {
+		res.status(400).send("Comment text cannot be empty")
+		return
+	} 
+	const commentId = req.body.commentId
+	const username = req.username
+	console.log("req.username is")
+	console.log(req.username)
+	//update article
+	if (!commentId || commentId == 0) {
+		Article.findByIdAndUpdate(id, {text: req.body.text}, {new: true}, (err, item) => {
+			if (err) {
+				res.status(400).send({error: err})
+				return
+			} else {
+				if (item) {
+					res.status(200).send({articles: [item]})
+					return
+				} else {
+					res.status(404).send({result: 'No article with that id'})
+					return
+				}
+			}
+		})
+	} else if (commentId == -1) {
+		//add a comment
+		Article.findByIdAndUpdate(id, 
+			{$push: {comments: {author: username, date: new Date().getTime(), text:req.body.text}}},{new:true},
+		(err, item) => {
+			if (err) {
+				res.status(400).send({error:err})
+				return
+			} else {
+				if (item) {
+					res.status(200).send({articles:[item]})
+					return
+				} else {
+					res.status(404).send({result: 'No article with that id'})
+					return
+				}
+			}
+		})
 
-	res.send(result)
+	} else {
+		// $ replace the position
+		Article.findOneAndUpdate({_id:id, "comments._id":commentId},
+			{$set: {"comments.$.text": req.body.text, "comments.$.date": new Date().getTime()}},
+			{new:true},
+			(err, item)=>{
+			if (err) {
+				res.status(400).send({error:err})
+			}
+			else {
+				if(item){
+					res.status(200).send({articles:[item]})
+				}
+				else{
+					res.status(404).send({result: 'No article with that id'})
+				}
+			}
+		})
+	}
 }
 
 module.exports = (app) => {

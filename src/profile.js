@@ -1,138 +1,209 @@
-const myProfile = {
-	username: 'Scott',
-	headline: 'This is a headline',
-	zipcode: '77005',
-	dob: '794668136679.8558',
-	email: 'aName@aName.com',
-	avatar: "http://www.rice.edu/aNameMaybeNotMe.jpg"
-}
+// for reference: the link is cloudinary://583315683521936:GGKx_UsXyL9nKSHlI_p82txl8DE@hsligsscb
 
+const uploadImage = require('./uploadCloudinary')
+
+var Profile = require('./model.js').Profile
 
 const index = (req, res) => {
      res.send({ hello: 'world' })
 }
 
 const getHeadlines = (req, res) => {
-	if (req.params.user) {
-		res.send({
-			headlines:[
-			{
-				username: req.params.user,
-				headline: myProfile.headline
+	const users = req.params.user ? req.params.user.split(','): [req.username];
+	Profile.find({username:{$in:users}}).exec((err, items)=>{
+		if (err) {
+			res.status(400).send({error:err})
+		} else {
+			if (items) {
+				res.status(200).send({ headlines: items.map((item)=>{
+					return {username:item.username, headline:item.headline}
+				})})
 			}
-			]
-		})		
-	} else {
-		res.send({
-			headlines:[
-			{
-				username: myProfile.username,
-				headline: myProfile.headline
+			else {
+				res.status(404).send({result:'Not found in database'})
 			}
-			]
-		})
-	}
+		}
+	})
 }
 
 const getHeadline = (req, res) => {
-	res.send({
-		username: myProfile.username,
-		headline: myProfile.headline
+	const username = req.username
+	Profile.findOne({username:username}).exec((err, item)=>{
+		if(err) {
+			res.status(400).send({error:err})
+			return
+		}
+		else {
+			if (item) {
+				res.status(200).send({username:username, headline:item.headline})
+			}
+			else {
+				res.status(404).send({result:'Not found in database'})
+			}
+		}
 	})
 }
 
 const putHeadline = (req, res) => {
-	if (req.body.headline) {
-		myProfile.headline = req.body.headline
+	const username = req.username
+	const headline = req.body.headline
+	if (!headline) {
+		res.status(400).send("Empty headline is not allowed")
+		return
 	}
-	res.send({
-		username: myProfile.username,
-		headline: req.body.headline || "Not Provided"
+	Profile.findOneAndUpdate({username:username},{headline:headline},{new:true}, (err,item) => {
+		if (err) {
+			res.status(400).send({error:err})
+			return
+		} else {
+			if (item) {
+				res.status(200).send({username:username, headline:item.headline})
+			}
+			else{
+				res.status(404).send({result:'Not found in database'})
+			}
+		}
 	})
+
 }
 
 const getEmail = (req, res) => {
-	if (req.params.user) {
-		res.send({
-			username: req.params.user,
-			email: myProfile.email
-		})
-	} else {
-		res.send({
-			username: myProfile.username,
-			email: myProfile.email
-		})		
-	}
+
+	const username = req.params.user ? req.params.user : req.username
+
+	Profile.findOne({username:username}).exec((err, item)=>{
+		if (err) {
+			res.status(400).send({error:err})
+			return
+		} else {
+			if (item) {
+				res.status(200).send({username:username, email:item.email})
+			} else{
+				res.status(404).send({result:'Not found in database'})
+			}
+		}
+	})
 }
 
 const putEmail = (req, res) => {
-	if (req.body.email) {
-		myProfile.email = req.body.email
+	const username = req.username
+
+	if (!req.body.email) {
+		res.status(400).send("Empty email field is not allowed")
+		return
 	}
-	res.send({
-		username: myProfile.username,
-		email: req.body.email || "Not Provided"
+	const email = req.body.email
+
+	Profile.findOneAndUpdate({username:username},{email:email},{new:true}, (err,item) => {
+		if (err) {
+			res.status(400).send({error:err})
+			return
+		} else {
+			if (item) {
+				res.status(200).send({username:username, email:email})
+			} else {
+				res.status(404).send({result:'Not found in database'})
+			}
+		}
 	})
 }
 
 const getDob = (req, res) => {
-	res.send({
-		username: myProfile.username,
-		dob: 794668136679.8558
+	const username = req.username
+
+	Profile.findOne({username:username}).exec((err, item)=>{
+		if (err) {
+			res.status(400).send({error:err})
+			return
+		} else {
+			if (item) {
+				res.status(200).send({username:username, dob:item.dob})
+			} else{
+				res.status(404).send({result:'Not found in database'})
+			}
+		}
 	})
+
 }
 
 const getZipcode = (req, res) => {
-	if (req.params.user) {
-		res.send({
-			username: req.params.user,
-			zipcode: myProfile.zipcode
-		})
-	} else {
-		res.send({
-			username: myProfile.username,
-			zipcode: myProfile.zipcode
-		})		
-	}
+	const username = req.params.user ? req.params.user : req.username
+
+	Profile.findOne({username:username}).exec((err, item)=>{
+		if (err) {
+			res.status(400).send({error:err})
+			return
+		} else {
+			if (item) {
+				res.status(200).send({username:username, zipcode:item.zipcode})
+			} else{
+				res.status(404).send({result:'Not found in database'})
+			}
+		}
+	})
 }
 
 const putZipcode = (req, res) => {
-	if (req.body.zipcode) {
-		myProfile.zipcode = req.body.zipcode
-	}	
-	res.send({
-		username: myProfile.username,
-		zipcode: req.body.zipcode || "Not Provided"
+	const username = req.username
+
+	if (!req.body.zipcode) {
+		res.status(400).send("Empty zipcode field is not allowed")
+		return
+	}
+	const zipcode = req.body.zipcode
+
+	Profile.findOneAndUpdate({username:username},{zipcode:zipcode},{new:true}, (err,item) => {
+		if (err) {
+			res.status(400).send({error:err})
+			return
+		} else {
+			if (item) {
+				res.status(200).send({username:username, zipcode:zipcode})
+			} else {
+				res.status(404).send({result:'Not found in database'})
+			}
+		}
 	})
 }
 
 const getAvatars = (req, res) => {
-	if (req.params.user) {
-		res.send({
-			avatars: [{
-				username: req.params.user,
-				avatar: myProfile.avatar
-			}]
-		})
-	} else {
-		res.send({
-			avatars: [{
-				username: myProfile.username,
-				avatar: myProfile.avatar
-			}]
-		})		
-	}
+	const users = req.params.user ? req.params.user.split(','): [req.username];
+	Profile.find({username:{$in:users}}).exec((err, items)=>{
+		if (err) {
+			res.status(400).send({error:err})
+		} else {
+			if (items) {
+				res.status(200).send({ avatars: items.map((item)=>{
+					return {username:item.username, avatar:item.avatar}
+				})})
+			}
+			else {
+				res.status(404).send({result:'Not found in database'})
+			}
+		}
+	})
 }
 
 const putAvatar = (req, res) => {
-	if (req.body.avatar) {
-		myProfile.avatar = req.body.avatar
+	if (!req.fileurl) {
+		res.status(400).send("missing avatar input")
+		return
 	}
-	res.send({
-			username: myProfile.username,
-			avatar: req.body.avatar || "Not Provided"
+	const avatar = req.fileurl
+	const username = req.username
+
+	Profile.findOneAndUpdate({username:username},{avatar:avatar},{new:true}, (err,item) => {
+		if (err) {
+			res.status(400).send({error:err})
+			return
+		} else {
+			if (item) {
+				res.status(200).send({username:username, avatar:avatar})
+			} else {
+				res.status(404).send({result:'Not found in database'})
+			}
 		}
-	)
+	})	
 }
 
 module.exports = app => {
@@ -146,5 +217,5 @@ module.exports = app => {
 	app.get("/zipcode/:user?", getZipcode)
 	app.put("/zipcode", putZipcode)
 	app.get("/avatars/:user?", getAvatars)
-	app.put("/avatar", putAvatar)
+	app.put("/avatar", uploadImage('avatar'), putAvatar)
 }
