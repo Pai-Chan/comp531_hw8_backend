@@ -3,7 +3,7 @@ const bodyParser = require('body-parser')
 
 const app = express()
 app.use(bodyParser.json())
-app.use(function(req, res, next){
+app.use( function(req, res, next) {
     const origin = req.headers.origin
     if (origin) {
         res.set('Access-Control-Allow-Origin', origin)
