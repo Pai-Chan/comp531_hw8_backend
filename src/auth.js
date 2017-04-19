@@ -108,13 +108,41 @@ const actRegister = (req, res) => {
 const actLogin = (req, res) => {
 	console.log("Receiving payload to actLogin")
 	console.log(req.body)
+	
+	console.log("The req.username from isLoggedIn is:")
+	console.log(req.username)
+
 	const username = req.body.username
 	const password = req.body.password
-	if (!username || !password) {
+	if (username === undefined || password === undefined) {
 		res.status(400).send({result: 'Unauthorized'})
 		return
 	}
-	
+
+	if (username === "" && password === "") {
+	    if (req.cookies.sid && sessionUser[req.cookies.sid]) {
+	    	const usernameByCookie = sessionUser[req.cookies.sid].username
+	    	//getUser without password authentication
+			getUser(usernameByCookie, (err, users) => {
+				if (err) {
+					console.log(err)
+					throw err
+					return
+				}
+				if (users.length === 0 || !users[0]) {
+					res.send({result: 'Unauthorized'})
+					return
+				} else {
+					console.log("can find a valid user record. not check password.")
+					res.send({result: 'success', username: usernameByCookie})
+					return
+				}
+			})	    	
+	    }
+		return
+	}
+
+
 	getUser(username, (err, users) => {
 		if (err) {
 			console.log(err)
@@ -141,7 +169,6 @@ const actLogin = (req, res) => {
 			const sessionKey = md5('ThisIsMySecret' + new Date().getTime() + userObj.username)		
 			sessionUser[sessionKey] = userObj
 			res.cookie(cookieKey, sessionKey, { maxAge: 3600*1000, httpOnly: true })
-
 			res.send({result: 'success', username: username})
 			return
 		}
@@ -152,7 +179,7 @@ const isLoggedIn = (req, res, next) => {
 	console.log('call isLoggedIn')
 	console.log(req.cookies)
 	console.log(sessionUser)
-	const sid = req.cookies[cookieKey]
+	const sid = req.cookies.sid
 
 	if (!sid) {
 		return res.status(401).send('sid undefined - user session does not exist')
@@ -164,6 +191,8 @@ const isLoggedIn = (req, res, next) => {
     const username = sessionUser[req.cookies.sid].username
     console.log("get username in isLoggedIn")
     req.username = username
+    console.log("Encapsulate req.username in isLoggedIn, which is:")
+    console.log(req.username)
     next()
 }
 
@@ -196,7 +225,7 @@ const actChangePassword = (req, res) => {
         .then((msg) => {
             console.log('password is changed : ', msg)
             res.send({ username : username,
-                message : 'Password has changed, please log out and log in again'})
+                status : 'Password has changed successfully'})
         })
         .catch(err => {
         	console.log(err)
@@ -227,17 +256,20 @@ const profile = (req, res) => {
 	res.send({'ok now what?':req.user})
 }
 
-module.exports = app => {
+
+exports = app => {
 	app.use(session({secret: 'ThisIsMySecret'}))
 	app.use(passport.initialize())
 	app.use(passport.session())
 	app.use(cookieParser())
 	app.post('/login', actLogin)
 	app.post('/register', actRegister)
-	app.use(isLoggedIn)
-	app.put('/password', isLoggedIn, actChangePassword)
 	app.use('/login/facebook', passport.authenticate('facebook',{scope: 'email'}))
-	app.use('/auth/callback', passport.authenticate('facebook', {successRedirect: '/profile', failureRedirect:'/fail'}))
+	app.use('/auth/callback', passport.authenticate('facebook', {successRedirect: '/profile', failureRedirect:'/fail'}))	
+	app.use(isLoggedIn)
+	app.put('/password', actChangePassword)
 	app.use('/logout', actLogout)
 	app.use('/profile', profile)
 }
+
+module.exports = exports
