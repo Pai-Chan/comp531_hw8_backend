@@ -164,10 +164,10 @@ const actLogin = (req, res) => {
 			}
 
 			let currentCookie = createHash(hash, userObj.salt)
-			redis.hmset(currentCookie,{username})
 			req.user = username
 			const sessionKey = md5('ThisIsMySecret' + new Date().getTime() + userObj.username)		
 			sessionUser[sessionKey] = userObj
+			redis.hmset(sessionKey, userObj)
 			res.cookie(cookieKey, sessionKey, { maxAge: 3600*1000, httpOnly: true })
 			res.send({result: 'success', username: username})
 			return
@@ -185,15 +185,26 @@ const isLoggedIn = (req, res, next) => {
 		return res.status(401).send('sid undefined - user session does not exist')
 	}
 
-    if (!sessionUser[req.cookies.sid]) {
-    	return res.status(401).send('Session not exist, maybe the server rebooted')
-    }
-    const username = sessionUser[req.cookies.sid].username
-    console.log("get username in isLoggedIn")
-    req.username = username
-    console.log("Encapsulate req.username in isLoggedIn, which is:")
-    console.log(req.username)
-    next()
+ //    if (!sessionUser[req.cookies.sid]) {
+ //    	return res.status(401).send('Session not exist, maybe the server rebooted')
+ //    }
+ //    const username = sessionUser[req.cookies.sid].username
+ //    console.log("get username in isLoggedIn")
+ //    req.username = username
+ //    console.log("Encapsulate req.username in isLoggedIn, which is:")
+ //    console.log(req.username)
+ //    next()
+ 	redis.hgetall(sid, (err, userObj) => {
+ 		if (userObj && userObj.username) {
+ 			console.log(sid + "is mapped to" + userObj.username)
+ 			const username = userObj.username
+ 			req.username = username
+ 			next()
+ 		} else {
+ 			res.status(401).send('user session does not exist')
+ 		}
+ 	})
+
 }
 
 const actLogout = (req, res) => {

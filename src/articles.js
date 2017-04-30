@@ -1,4 +1,6 @@
 var Article = require('./model.js').Article
+var Profile = require('./model.js').Profile
+
 
 const addArticle = (req, res) => {
 	console.log("Now user go to addArticle")
@@ -39,6 +41,22 @@ const addArticle = (req, res) => {
 	})
 }
 
+const getArticlesByAuthors = (req, res, users) => {
+	Article.find({author:{$in:users}}).sort({date:-1}).limit(10).exec((err, items) => {
+		if (err) {
+			res.status(404).send({error: err})
+		} else {
+			if (items) {
+				console.log("The article items before sent are:")
+				console.log(items)
+				res.status(200).send({articles: items})
+			} else {
+				res.status(404).send({result: 'Not found in database'})
+			}
+		}
+	})
+}
+
 const getArticles = (req, res) => {
 	console.log("Now user try to get articles")
 	console.log("id of the one article if it is one")
@@ -46,18 +64,32 @@ const getArticles = (req, res) => {
 	const id = req.params.id
 	if (!id) {
 		// not providing id, return all articles in the database, will change in final assign
-		Article.find({}, (err, items) => {
+		// Article.find({}, (err, items) => {
+		// 	if (err) {
+		// 		res.status(400).send({error: err})
+		// 		return
+		// 	} else {
+		// 		if (items) {
+		// 			res.status(200).send({articles: items})
+		// 			return
+		// 		} else {
+		// 			console.log("Now the database has no article.")
+		// 			res.status(200).send({articles: items})
+		// 			return					
+		// 		}
+		// 	}
+		// })
+		Profile.findOne({username: req.username}, 'following').exec((err, item) => {
 			if (err) {
 				res.status(400).send({error: err})
-				return
 			} else {
-				if (items) {
-					res.status(200).send({articles: items})
-					return
+				if (item) {
+					let users = [req.username, ...item.following]
+					console.log("The articles of these people will be rendered.")
+					console.log(users)
+					getArticlesByAuthors(req, res, users)
 				} else {
-					console.log("Now the database has no article.")
-					res.status(200).send({articles: items})
-					return					
+					res.status(404).send({result: 'Not found in database'})
 				}
 			}
 		})
