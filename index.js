@@ -4,8 +4,7 @@ const bodyParser = require('body-parser')
 const app = express()
 app.use(bodyParser.json())
 app.use( function(req, res, next) {
-    const origin = req.headers.origin ? req.headers.origin : '*'
-    res.set('Access-Control-Allow-Origin', origin)
+    res.set('Access-Control-Allow-Origin', 'http://ricebookpchw8.surge.sh')
     res.set('Access-Control-Allow-Credentials', true)
     res.set('Access-Control-Allow-Headers', 'Authorization, Content-Type, X-Requested-With, X-Session-Id')
     res.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE')
