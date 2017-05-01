@@ -39,17 +39,3 @@ exports.Profile = mongoose.model('profile', profileSchema)
 exports.getUser = (username, callback) => {
     mongoose.model('user', userSchema).find({ username : username}).exec(callback)
 }
-
-//This queries userSchema by username.
-exports.findByUsernameInUser = (username, callback)=> {
-    user.find({ username }).exec(function(err, items) {
-        callback(items);
-    })
-}
-
-//This queries profileSchema by username
-exports.findByUsernameInProfile = (username, callback)=> {
-    profile.find({ username }).exec(function(err,items){
-        callback(items);
-    })
-}

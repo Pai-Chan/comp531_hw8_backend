@@ -163,7 +163,7 @@ const actLogin = (req, res) => {
 			sessionUser[sessionKey] = userObj
 			redis.hmset(sessionKey, {username})
 			res.cookie(cookieKey, sessionKey, { maxAge: 3600*1000, httpOnly: true })		
-			res.redirect(302, "http://127.0.0.1:8080")
+			res.redirect(302, "http://ricebookpchw8.surge.sh")
 			return
 		})
 		return
