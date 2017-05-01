@@ -18,6 +18,10 @@ app.use( function(req, res, next) {
     }
 })
 
+if (!process.env.CLOUDINARY_URL) {
+     process.env.CLOUDINARY_URL="cloudinary://456579844915565:IFigu4KDj21i_RyXc0pRpgKL1o8@hz5dgdqpb"
+}
+
 require('./src/auth')(app)
 require('./src/articles')(app)
 require('./src/profile')(app)

@@ -16,11 +16,10 @@ exports.Article = mongoose.model('article', articleSchema)
 
 const userSchema = new mongoose.Schema({
     username: String,
-    email: String,
-    dob: Date,
-    zipcode: String,
     salt: String,
-    hash: String
+    hash: String,
+    auth: String,
+    authId: String
 })
 
 exports.User = mongoose.model('user', userSchema)
@@ -39,4 +38,18 @@ exports.Profile = mongoose.model('profile', profileSchema)
 
 exports.getUser = (username, callback) => {
     mongoose.model('user', userSchema).find({ username : username}).exec(callback)
+}
+
+//This queries userSchema by username.
+exports.findByUsernameInUser = (username, callback)=> {
+    user.find({ username }).exec(function(err, items) {
+        callback(items);
+    })
+}
+
+//This queries profileSchema by username
+exports.findByUsernameInProfile = (username, callback)=> {
+    profile.find({ username }).exec(function(err,items){
+        callback(items);
+    })
 }

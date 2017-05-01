@@ -1,12 +1,12 @@
 var Article = require('./model.js').Article
 var Profile = require('./model.js').Profile
 
+const uploadArticleImage = require('./uploadArticleImage.js')
 
 const addArticle = (req, res) => {
 	console.log("Now user go to addArticle")
 	console.log("--------------------------------------")
-	console.log("The req body is")
-	console.log(req.body)
+	console.log("The file is ", req.fileid, req.fileurl)
 	if (!req.body.text) {
 		console.log("Empty text")
 		res.status(401).send("Empty text")
@@ -21,11 +21,11 @@ const addArticle = (req, res) => {
 	}
 	const articleToSave = {
 		author: username,
-		img: null,
 		date: new Date().getTime(),
 		text: req.body.text,
 		comments:[]
-	}
+	}	
+	articleToSave.img = req.fileurl ? req.fileurl : null
 	console.log("The article that will be saved in next step is:")
 	console.log(articleToSave)
 	new Article(articleToSave)
@@ -186,7 +186,7 @@ const putArticle = (req, res) => {
 }
 
 module.exports = (app) => {
-	app.post('/article', addArticle)
+	app.post('/article', uploadArticleImage('article'), addArticle)
 	app.get('/articles/:id*?', getArticles)
 	app.put('/articles/:id*', putArticle)
 }
