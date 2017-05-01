@@ -4,10 +4,12 @@ const bodyParser = require('body-parser')
 const app = express()
 app.use(bodyParser.json())
 app.use( function(req, res, next) {
-    res.set('Access-Control-Allow-Origin', '*')
-	res.set({'Access-Control-Allow-Credentials': true,
-             'Access-Control-Allow-Headers': 'Authorization, Content-Type, X-Requested-With, Origin',
-             'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE'})
+    const origin = req.headers.origin ? req.headers.origin : '*'
+    res.set('Access-Control-Allow-Origin', origin)
+    res.set('Access-Control-Allow-Credentials', true)
+    res.set('Access-Control-Allow-Headers', 'Authorization, Content-Type, X-Requested-With, X-Session-Id')
+    res.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE')
+    res.set('Access-Control-Expose-Headers', 'Location, X-Session-Id')
 	if (req.method == 'OPTIONS') {
 		res.status(200).send()
 	} else {
