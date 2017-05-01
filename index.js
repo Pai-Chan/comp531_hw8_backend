@@ -4,21 +4,19 @@ const bodyParser = require('body-parser')
 const app = express()
 app.use(bodyParser.json())
 app.use( function(req, res, next) {
-    res.set('Access-Control-Allow-Origin', 'http://ricebookpchw8.surge.sh')
-    res.set('Access-Control-Allow-Credentials', true)
-    res.set('Access-Control-Allow-Headers', 'Authorization, Content-Type, X-Requested-With, X-Session-Id')
-    res.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE')
-    res.set('Access-Control-Expose-Headers', 'Location, X-Session-Id')
-	if (req.method == 'OPTIONS') {
-		res.status(200).send()
-	} else {
-    	next()
+    const origin = req.headers.origin
+    if (origin) {
+        res.set('Access-Control-Allow-Origin', origin)
+    }
+    res.set({'Access-Control-Allow-Credentials': true,
+             'Access-Control-Allow-Headers': 'Authorization, Content-Type, X-Requested-With, Origin',
+             'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE'})
+    if (req.method == 'OPTIONS') {
+        res.status(200).send()
+    } else {
+        next()
     }
 })
-
-if (!process.env.CLOUDINARY_URL) {
-     process.env.CLOUDINARY_URL="cloudinary://456579844915565:IFigu4KDj21i_RyXc0pRpgKL1o8@hz5dgdqpb"
-}
 
 require('./src/auth')(app)
 require('./src/articles')(app)
